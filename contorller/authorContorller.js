@@ -9,7 +9,7 @@ exports.allAuthor = async (req, res) => {
   console.log(searchOptions);
   try {
     const allAuthor = await Author.find(searchOptions);
-    console.log(allAuthor);
+
     res.render("author/authors", {
       authors: allAuthor,
       searchOptions: req.query,
