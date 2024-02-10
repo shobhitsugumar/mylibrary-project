@@ -6,10 +6,6 @@ router.get("/", bookController.allBooks);
 
 router.get("/new", bookController.newbook);
 
-router.post(
-  "/",
-  bookController.uploadbookCoverimage,
-  bookController.createBook
-);
+router.post("/", bookController.createBook);
 
 module.exports = router;

@@ -1,9 +1,12 @@
-const multer = require("multer");
+//const multer = require("multer");
 const Books = require("../models/bookModel");
 const Author = require("../models/authorModel");
 const fs = require("fs");
 const path = require("path");
 
+const imageMimeTypes = ["image/jpeg", "image1/png", "image/gif"];
+
+/* in this we are using filepond instead of multer 
 const multerStorage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, "public/img/bookCover");
@@ -29,14 +32,12 @@ const upload = multer({
 });
 
 exports.uploadbookCoverimage = upload.single("Cover");
-
+*/
 /////////////////////////////////////////////////////////////////////
 
 exports.allBooks = async (req, res) => {
   try {
     let bookquery = Books.find();
-    //console.log("book ", query);
-    console.log(req.query.title);
 
     if (req.query.title != null && req.query.title !== "") {
       bookquery = bookquery.regex("title", new RegExp(req.query.title, "i"));
@@ -60,24 +61,28 @@ exports.newbook = async (req, res) => {
 };
 
 exports.createBook = async (req, res) => {
-  const fileName = req.file !== null ? req.file.filename : null;
+  //const fileName = req.file !== null ? req.file.filename : null;
 
   const book = new Books({
     title: req.body.title,
     author: req.body.author,
     publishDate: new Date(req.body.publishDate),
     pageCount: req.body.pageCount,
-    coverImage: fileName,
+    //coverImage: fileName,
     summary: req.body.summary,
   });
+
+  console.log("body.cover=>", req.body.Cover);
+  saveCover(book, req.body.Cover); // here in req.body,cover we will be getting the json format that have been encoded check the filepond encoded
+
   try {
     const newBook = await book.save();
     res.redirect("/books");
   } catch {
-    if (book.coverImage != null) {
+    /*if (book.coverImage != null) {
       console.log(book.coverImage);
       removeBookCoverImage(book.coverImage);
-    }
+    }*/
     renderNewPage(res, book, true);
   }
 };
@@ -100,8 +105,22 @@ async function renderNewPage(res, book, hasError = false) {
   }
 }
 
-function removeBookCoverImage(fileName) {
+/*function removeBookCoverImage(fileName) {
   fs.unlink(path.join("public/img/bookCover", fileName), (err) => {
     if (err) console.error(err);
   });
+}
+*/
+
+function saveCover(book, coverEncoded) {
+  if (coverEncoded == null) return;
+
+  const Cover = JSON.parse(coverEncoded);
+  if (Cover != null && imageMimeTypes.includes(Cover.type)) {
+    //we cant store the data as string because the cover image type is buffer
+    book.coverImage = new Buffer.from(Cover.data, "base64");
+
+    //saving the cover image type as jpeg or png
+    book.coverImageType = Cover.type;
+  }
 }
