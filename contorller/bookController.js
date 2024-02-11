@@ -72,7 +72,7 @@ exports.createBook = async (req, res) => {
     summary: req.body.summary,
   });
 
-  console.log("body.cover=>", req.body.Cover);
+  
   saveCover(book, req.body.Cover); // here in req.body,cover we will be getting the json format that have been encoded check the filepond encoded
 
   try {
