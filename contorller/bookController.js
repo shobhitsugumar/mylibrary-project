@@ -72,7 +72,6 @@ exports.createBook = async (req, res) => {
     summary: req.body.summary,
   });
 
-  
   saveCover(book, req.body.Cover); // here in req.body,cover we will be getting the json format that have been encoded check the filepond encoded
 
   try {
@@ -84,6 +83,65 @@ exports.createBook = async (req, res) => {
       removeBookCoverImage(book.coverImage);
     }*/
     renderNewPage(res, book, true);
+  }
+};
+
+exports.bookshow = async (req, res) => {
+  try {
+    const book = await Books.findById(req.params.id).populate("author");
+    res.render("books/show", {
+      book: book,
+    });
+  } catch {
+    res.redirect("/");
+  }
+};
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+//show the edit page to the client
+exports.editbook = async (req, res) => {
+  try {
+    const book = await Books.findById(req.params.id);
+    renderEditPage(res, book);
+  } catch {
+    res.redirect("/");
+  }
+};
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+//update it when user click update
+exports.updatebook = async (req, res) => {
+  let updatebook;
+  try {
+    updatebook = await Books.findByIdAndUpdate(req.params.id, {
+      title: req.body.title,
+      author: req.body.author,
+      publishDate: new Date(req.body.publishDate),
+      pageCount: req.body.pageCount,
+      summary: req.body.summary,
+    });
+    console.log(req.body.Cover);
+    if (req.body.Cover != null && req.body.Cover !== "") {
+      saveCover(updatebook, req.body.Cover);
+    }
+
+    res.redirect(`/books/${updatebook.id}`);
+  } catch {
+    if (book != null) {
+      renderEditPage(res, book, true);
+    } else {
+      redirect("/");
+    }
+  }
+};
+
+//>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+exports.deletebook = async (req, res) => {
+  let deletebook;
+  try {
+    deletebook = await Books.findByIdAndDelete(req.params.id);
+    res.redirect("/books");
+  } catch {
+    res.redirect(`/books/${deletebook.id}`);
   }
 };
 
@@ -122,5 +180,23 @@ function saveCover(book, coverEncoded) {
 
     //saving the cover image type as jpeg or png
     book.coverImageType = Cover.type;
+  }
+}
+
+async function renderEditPage(res, book, hasError = false) {
+  try {
+    const authors = await Author.find({});
+    const params = {
+      authors: authors,
+      book: book,
+    };
+    if (hasError) {
+      params.errorMessage = "Error in Updating";
+    } else {
+      params.errorMessage = "Error Creating Book";
+    }
+    res.render("books/edit", params);
+  } catch {
+    res.redirect("/books");
   }
 }

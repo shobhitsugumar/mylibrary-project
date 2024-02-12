@@ -4,7 +4,11 @@ const Books = require("../models/bookModel");
 exports.homepage = async (req, res) => {
   let books;
   try {
-    books = await Books.find().sort({ createdAt: "desc" }).limit(10).exec();
+    books = await Books.find()
+      .populate("author")
+      .sort({ createdAt: "desc" })
+      .limit(10)
+      .exec();
   } catch {
     books = [];
   }
