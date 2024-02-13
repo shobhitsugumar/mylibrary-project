@@ -1,7 +1,13 @@
 <h2 class="page-header">Edit author</h2>
 <form action="/authors/<%= author.id %>?_method=PUT" method="POST">
-  <label for="authorName">Author Name:</label>
-  <input type="text" id="authorName" name="name" value="<%=author.name%>" />
-  <a href="/authors/<%= author.id %>">Cancel</a>
-  <button type="submit">Update</button>
+  <div class="form-row">
+    <div class="form-item">
+      <label for="authorName">Author Name:</label>
+      <input type="text" id="authorName" name="name" value="<%=author.name%>" />
+    </div>
+  </div>
+  <div class="form-row form-row-end btn-row">
+    <a class="btn btn-danger" href="/authors/<%= author.id %>">Cancel</a>
+    <button class="btn btn-primary" type="submit">Update</button>
+  </div>
 </form>

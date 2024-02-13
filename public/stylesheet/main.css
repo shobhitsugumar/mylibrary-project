@@ -2,6 +2,7 @@
 @import "share/fonts.css";
 @import "share/header.css";
 @import "share/button.css";
+@import "share/form.css";
 
 :root {
   font-family: "Gotham Rounded";
